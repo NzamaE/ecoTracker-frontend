@@ -23,7 +23,7 @@ import API from "@/services/api";
 // Simple Logo component (replace with your actual logo)
 const Logo = ({ className }) => (
   <div className={`font-bold text-2xl text-primary ${className}`}>
-    Logo
+   <link rel="icon" type="image/svg+xml" href="/ecoTracker_logo.svg" />
   </div>
 );
 
@@ -84,7 +84,7 @@ const Login02 = () => {
       <div className="max-w-sm w-full flex flex-col items-center border rounded-lg px-6 py-8 shadow-sm bg-card">
         <Logo className="h-9 w-9" />
         <p className="mt-4 text-xl font-semibold tracking-tight">
-          Log in to Your App
+          Login and make change
         </p>
 
         <Button 
