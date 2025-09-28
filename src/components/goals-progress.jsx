@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 export function GoalProgress({ onSetGoal, refreshTrigger, weeklyInsights }) {
   const [goalData, setGoalData] = useState(null)
