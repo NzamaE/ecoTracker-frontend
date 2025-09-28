@@ -23,7 +23,7 @@ import API from "@/services/api";
 // Simple Logo component (replace with your actual logo)
 const Logo = ({ className }) => (
   <div className={`font-bold text-2xl text-primary ${className}`}>
-   <link rel="icon" type="image/svg+xml" href="/ecoTracker_logo.svg" />
+    ecoTracker
   </div>
 );
 
