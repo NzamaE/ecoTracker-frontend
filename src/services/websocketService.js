@@ -14,9 +14,9 @@ class WebSocketService {
     }
     
     // For production, use dedicated WebSocket URL or derive from API URL
-    return import.meta.env.VITE_WS_URL || 
-           import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || 
-           'http://localhost:3000'
+    return import.meta.env.VITE_WS_URL ||
+      import.meta.env.VITE_API_URL?.replace('/api', '') ||
+      'http://localhost:3000'
   }
 
   connect() {
