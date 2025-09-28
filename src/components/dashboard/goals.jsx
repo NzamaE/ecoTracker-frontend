@@ -117,7 +117,7 @@ export default function Dashboard() {
               refreshTrigger={refreshTrigger}
               weeklyInsights={weeklyInsights}
             />
-            <SectionCards refreshTrigger={refreshTrigger} />
+          
             
             {/* Chart Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
