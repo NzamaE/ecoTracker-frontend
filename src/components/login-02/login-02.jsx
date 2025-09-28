@@ -173,7 +173,7 @@ const Login02 = () => {
 
         <div className="mt-5 space-y-5">
           <a
-            href="#"
+            href="/signup"
             className="text-sm block underline text-muted-foreground text-center hover:text-foreground transition-colors"
           >
             Forgot your password?
