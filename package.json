@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "start": "npm run preview",
     "lint": "eslint ."
-  
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

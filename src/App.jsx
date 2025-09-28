@@ -3,9 +3,9 @@ import { Toaster } from "sonner"; // Add this import
 
 import Navbar from '@/components/Navbar'
 import Hero06 from '@/components/hero-06/hero-06'
-import Features01 from '@/components/Features-01/features-01'
-import Timeline06 from '@/components/Timeline-06/timeline-06'
-import Footer05 from '@/components/Footer-05/footer-05'
+import Features01 from '@/components/features-01/features-01'
+import Timeline06 from '@/components/timeline-06/timeline-06'
+import Footer05 from '@/components/footer-05/footer-05'
 import Login02 from '@/components/login-02/login-02'
 import SignUp02 from '@/components/signup-02/signup-02'
 
