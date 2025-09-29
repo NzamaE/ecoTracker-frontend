@@ -12,9 +12,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-// Simple Logo component (replace with your actual logo)
+
 const Logo = () => (
-  <div className="font-bold text-lg">YourLogo</div>
+   <img 
+    src="/ecoTracker_logo.svg"  //This image does not belong to me, should the owner claim it, I will not refuse.
+    alt="Logo" 
+    className="h-8 w-auto" // adjust size with Tailwind classes
+  />
 )
 
 // Navigation links array with proper hrefs

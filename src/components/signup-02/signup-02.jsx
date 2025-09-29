@@ -21,7 +21,11 @@ import API from "@/services/api";
 
 // Simple Logo component (replace with your actual logo)
 const Logo = ({ className }) => (
-  <div className={`font-bold text-2xl text-primary ${className}`}>ecoTracker</div>
+ <img 
+    src="/ecoTracker_logo.svg"  //This image does not belong to me, should the owner claim it, I will not refuse.
+    alt="Logo" 
+    className="h-8 w-auto" // adjust size with Tailwind classes
+  />
 );
 
 const formSchema = z.object({
