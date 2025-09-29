@@ -14,11 +14,7 @@ import {
 
 
 const Logo = () => (
-   <img 
-    src="/ecoTracker_logo.svg"  //This image does not belong to me, should the owner claim it, I will not refuse.
-    alt="Logo" 
-    className="h-8 w-auto" // adjust size with Tailwind classes
-  />
+  <div className="font-bold text-lg">ecoTracker</div>
 )
 
 // Navigation links array with proper hrefs
