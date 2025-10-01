@@ -13,6 +13,7 @@ import Dashboard from '@/components/dashboard/dashboard'
 import Goals from '@/components/dashboard/goals'
 import Leaderboard from '@/components/leaderboard/leaderboard'
 import Insights from '@/components/insights/insights'
+import SplashCursor from '@/components/SplashCursor'
 import './App.css'
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
         <Route path="/goals" element={<Goals />} />
         <Route path="/" element={
           <>
+          <SplashCursor />
             <Navbar />
             <Hero06 />
             <Features01 />
