@@ -16,16 +16,13 @@ import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import API from "@/services/api";
+import API, { withWakeUp } from "@/services/api";
 
-
-
-// Simple Logo component (replace with your actual logo)
 const Logo = ({ className }) => (
-  <img 
-    src="/ecoTracker_logo.svg"  //This image does not belong to me, should the owner claim it, I will not refuse.
-    alt="Logo" 
-    className="h-8 w-auto" // adjust size with Tailwind classes
+  <img
+    src="/ecoTracker_logo.svg"
+    alt="Logo"
+    className="h-8 w-auto"
   />
 );
 
@@ -34,17 +31,60 @@ const formSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
+// Animated dots for the waking banner
+const BouncingDots = () => (
+  <span className="inline-flex gap-1 ml-1">
+    {[0, 1, 2].map((i) => (
+      <span
+        key={i}
+        className="inline-block w-1.5 h-1.5 rounded-full bg-amber-600"
+        style={{
+          animation: "bounce 1.2s infinite",
+          animationDelay: `${i * 0.2}s`,
+        }}
+      />
+    ))}
+    <style>{`
+      @keyframes bounce {
+        0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+        40% { transform: translateY(-5px); opacity: 1; }
+      }
+    `}</style>
+  </span>
+);
+
+// Progress bar that fills over ~60 seconds to reassure the user
+const WakeUpProgress = () => {
+  const [progress, setProgress] = useState(0);
+
+  React.useEffect(() => {
+    const total = 75; // seconds we animate over
+    const tick = 500; // ms between updates
+    const increment = 100 / ((total * 1000) / tick);
+    const id = setInterval(() => {
+      setProgress((p) => Math.min(p + increment, 95)); // cap at 95 until actually ready
+    }, tick);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="w-full mt-2 h-1.5 bg-amber-100 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-amber-500 rounded-full transition-all duration-500"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+};
+
 const Login02 = () => {
-  // State management for authentication
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [serverWaking, setServerWaking] = useState(false);
 
   const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
     resolver: zodResolver(formSchema),
   });
 
@@ -52,31 +92,34 @@ const Login02 = () => {
     setLoading(true);
     setMessage("");
     setError("");
+    setServerWaking(false);
 
     try {
-      const response = await API.post("/auth/login", data);
+      const response = await withWakeUp(
+        (overrides) => API.post("/auth/login", data, overrides),
+        {
+          onWaking: () => setServerWaking(true),
+          onReady: () => setServerWaking(false),
+        }
+      );
 
-      // Save token and user info
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
-
       setMessage("Login successful! Redirecting...");
-      
-      // Redirect to dashboard after success (replace with your routing logic)
+
       setTimeout(() => {
-        window.location.href = "/dashboard"; // Simple redirect
-        console.log("Redirecting to dashboard...");
+        window.location.href = "/dashboard";
       }, 1000);
 
     } catch (err) {
-      setError(err.response?.data?.error || "Login failed");
+      setServerWaking(false);
+      setError(err.response?.data?.error || err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    // Placeholder for Google OAuth integration
     console.log("Google login clicked - implement OAuth flow here");
     setError("Google login not implemented yet");
   };
@@ -89,8 +132,8 @@ const Login02 = () => {
           Login and make change
         </p>
 
-        <Button 
-          className="mt-8 w-full gap-3" 
+        <Button
+          className="mt-8 w-full gap-3"
           onClick={handleGoogleLogin}
           variant="outline"
           disabled={loading}
@@ -104,6 +147,20 @@ const Login02 = () => {
           <span className="text-sm px-2 text-muted-foreground">OR</span>
           <Separator />
         </div>
+
+        {/* Server waking up banner */}
+        {serverWaking && (
+          <Alert className="w-full mb-4 border-amber-200 bg-amber-50">
+            <AlertDescription className="text-amber-800 text-sm">
+              <span className="font-medium">Waking up the server</span>
+              <BouncingDots />
+              <p className="mt-1 text-amber-700 text-xs">
+                The server was asleep due to inactivity. This takes up to 60 seconds — hang tight!
+              </p>
+              <WakeUpProgress />
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Success Message */}
         {message && (
@@ -163,12 +220,12 @@ const Login02 = () => {
                 </FormItem>
               )}
             />
-            <Button 
-              onClick={form.handleSubmit(onSubmit)} 
-              className="mt-4 w-full" 
+            <Button
+              onClick={form.handleSubmit(onSubmit)}
+              className="mt-4 w-full"
               disabled={loading}
             >
-              {loading ? "Signing in..." : "Continue with Email"}
+              {serverWaking ? "Waiting for server..." : loading ? "Signing in..." : "Continue with Email"}
             </Button>
           </div>
         </Form>
@@ -203,22 +260,10 @@ const GoogleLogo = () => (
     className="inline-block shrink-0 align-sub text-inherit"
   >
     <g clipPath="url(#clip0)">
-      <path
-        d="M15.6823 8.18368C15.6823 7.63986 15.6382 7.0931 15.5442 6.55811H7.99829V9.63876H12.3194C12.1401 10.6323 11.564 11.5113 10.7203 12.0698V14.0687H13.2983C14.8122 12.6753 15.6823 10.6176 15.6823 8.18368Z"
-        fill="#4285F4"
-      />
-      <path
-        d="M7.99812 16C10.1558 16 11.9753 15.2915 13.3011 14.0687L10.7231 12.0698C10.0058 12.5578 9.07988 12.8341 8.00106 12.8341C5.91398 12.8341 4.14436 11.426 3.50942 9.53296H0.849121V11.5936C2.2072 14.295 4.97332 16 7.99812 16Z"
-        fill="#34A853"
-      />
-      <path
-        d="M3.50665 9.53295C3.17154 8.53938 3.17154 7.4635 3.50665 6.46993V4.4093H0.849292C-0.285376 6.66982 -0.285376 9.33306 0.849292 11.5936L3.50665 9.53295Z"
-        fill="#FBBC04"
-      />
-      <path
-        d="M7.99812 3.16589C9.13867 3.14825 10.241 3.57743 11.067 4.36523L13.3511 2.0812C11.9048 0.723121 9.98526 -0.0235266 7.99812 -1.02057e-05C4.97332 -1.02057e-05 2.2072 1.70493 0.849121 4.40932L3.50648 6.46995C4.13848 4.57394 5.91104 3.16589 7.99812 3.16589Z"
-        fill="#EA4335"
-      />
+      <path d="M15.6823 8.18368C15.6823 7.63986 15.6382 7.0931 15.5442 6.55811H7.99829V9.63876H12.3194C12.1401 10.6323 11.564 11.5113 10.7203 12.0698V14.0687H13.2983C14.8122 12.6753 15.6823 10.6176 15.6823 8.18368Z" fill="#4285F4" />
+      <path d="M7.99812 16C10.1558 16 11.9753 15.2915 13.3011 14.0687L10.7231 12.0698C10.0058 12.5578 9.07988 12.8341 8.00106 12.8341C5.91398 12.8341 4.14436 11.426 3.50942 9.53296H0.849121V11.5936C2.2072 14.295 4.97332 16 7.99812 16Z" fill="#34A853" />
+      <path d="M3.50665 9.53295C3.17154 8.53938 3.17154 7.4635 3.50665 6.46993V4.4093H0.849292C-0.285376 6.66982 -0.285376 9.33306 0.849292 11.5936L3.50665 9.53295Z" fill="#FBBC04" />
+      <path d="M7.99812 3.16589C9.13867 3.14825 10.241 3.57743 11.067 4.36523L13.3511 2.0812C11.9048 0.723121 9.98526 -0.0235266 7.99812 -1.02057e-05C4.97332 -1.02057e-05 2.2072 1.70493 0.849121 4.40932L3.50648 6.46995C4.13848 4.57394 5.91104 3.16589 7.99812 3.16589Z" fill="#EA4335" />
     </g>
     <defs>
       <clipPath id="clip0">
